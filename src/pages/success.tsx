@@ -26,13 +26,25 @@ export default function Success({ customerName, product }: SuccessProps) {
       <p>
         Uhuul <strong>{customerName}</strong>, sua <strong>{product.name}</strong> já está a caminho da sua casa.
       </p>
-      <Link href='/'>Voltar ao Catalogo</Link>
+      <Link href="/">Voltar ao Catalogo</Link>
     </SuccessContainer>
   )
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
+
+  if(!query.session_id){
+    return{
+      redirect: {
+        destination: "/",
+        permanent: false,
+      }
+    }
+  }
+
   const sessionID = String(query.session_id)
+
+
   const session = await stripe.checkout.sessions.retrieve(sessionID, {
     expand: ["line_items", "line_items.data.price.product"]
   })
