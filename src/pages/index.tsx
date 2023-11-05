@@ -1,13 +1,15 @@
 import { useKeenSlider } from 'keen-slider/react'
 import Image from "next/image"
+import Head from "next/head"
 import { HomeContainer, Product } from "../styles/pages/home"
 
 
 import 'keen-slider/keen-slider.min.css'
 import { GetStaticProps } from "next"
+import Link from 'next/link'
 import Stripe from "stripe"
 import { stripe } from "../lib/stripe"
-import Link from 'next/link'
+import { useShoppingCart } from '../context/shoppingCartContext'
 
 interface HomeProps {
   products: {
@@ -29,6 +31,10 @@ export default function Home({ products }: HomeProps) {
     }
   )
   return (
+  <>
+  <Head>
+    <title>Home | Next Shop</title>
+  </Head>
     <HomeContainer ref={sliderRef} className="keen-slider">
       {products.map(product => {
         return (
@@ -48,6 +54,7 @@ export default function Home({ products }: HomeProps) {
         )
       })}
     </HomeContainer>
+    </>
   )
 }
 
