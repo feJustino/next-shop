@@ -1,7 +1,9 @@
 import { useKeenSlider } from 'keen-slider/react'
 import Image from "next/image"
 import Head from "next/head"
-import { HomeContainer, Product } from "../styles/pages/home"
+import { ButtonLeftSlide, ButtonRightSlide, HomeContainer, Product } from "../styles/pages/home"
+import leftArrow from '../assets/leftArrow.svg'
+import rightArrow from '../assets/rightArrow.svg'
 
 
 import 'keen-slider/keen-slider.min.css'
@@ -9,7 +11,7 @@ import { GetStaticProps } from "next"
 import Link from 'next/link'
 import Stripe from "stripe"
 import { stripe } from "../lib/stripe"
-import { useShoppingCart } from '../context/shoppingCartContext'
+import { useState } from 'react'
 
 interface HomeProps {
   products: {
@@ -21,39 +23,72 @@ interface HomeProps {
 }
 
 export default function Home({ products }: HomeProps) {
-  const [sliderRef] = useKeenSlider(
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [sliderRef, instanceRef] = useKeenSlider(
     {
-      loop: true,
+      slideChanged(slider) {
+        setCurrentSlide(slider.track.details.rel)
+      },
       slides: {
-        perView: 3,
-        spacing: 48,
+        perView: 2,
+        spacing: 48
+      },
+      created() {
+        setIsLoaded(true)
       }
     }
   )
+
+  function handleLeftButton(e) {
+    e.stopPropagation() || instanceRef.current?.prev();
+  }
+
+  function handleRightButton(e) {
+    e.stopPropagation() || instanceRef.current?.next();
+  }
   return (
-  <>
-  <Head>
-    <title>Home | Next Shop</title>
-  </Head>
-    <HomeContainer ref={sliderRef} className="keen-slider">
-      {products.map(product => {
-        return (
-          <Link key={product.id} href={`product/${product.id}`} prefetch={false}>
-            <Product className="keen-slider__slide">
-              <Image
-                src={product.imageUrl}
-                width={520}
-                height={480}
-                alt="" />
-              <footer>
-                <strong>{product.name}</strong>
-                <span>{product.price}</span>
-              </footer>
-            </Product>
-          </Link>
-        )
-      })}
-    </HomeContainer>
+    <>
+      <Head>
+        <title>Home | Next Shop</title>
+      </Head>
+      <HomeContainer ref={sliderRef} className="keen-slider">
+        {products.map(product => {
+          return (
+            <Link key={product.id} href={`product/${product.id}`} prefetch={false}>
+              <Product className="keen-slider__slide">
+                <Image
+                  src={product.imageUrl}
+                  width={520}
+                  height={480}
+                  alt="" />
+                <footer>
+                  <strong>{product.name}</strong>
+                  <span>{product.price}</span>
+                </footer>
+              </Product>
+            </Link>
+          )
+        })}
+        {isLoaded &&
+          <>
+            <ButtonLeftSlide
+              onClick={(e: any) =>
+                handleLeftButton(e)
+              }
+              disabled={currentSlide === 0}>
+              <Image src={leftArrow} width={48} height={48} alt="" />
+            </ButtonLeftSlide>
+            <ButtonRightSlide
+              onClick={(e: any) =>
+                handleRightButton(e)
+              }
+              disabled={currentSlide === instanceRef.current.track.details.slides.length - 1}>
+              <Image src={rightArrow} width={48} height={48} alt="" />
+            </ButtonRightSlide>
+          </>
+        }
+      </HomeContainer >
     </>
   )
 }

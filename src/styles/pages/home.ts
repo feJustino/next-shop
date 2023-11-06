@@ -1,8 +1,9 @@
 import { styled } from "..";
 
 export const HomeContainer = styled("main",{
+  position: "relative",
   display:"flex",
-  maxWidth: "calc(100vw - ((100vw - 1180px) / 2))",
+    maxWidth: "calc(100vw - ((100vw - 1180px) / 2))",
   width: "100%",
   marginLeft: "auto",
   minHeight: 656,
@@ -62,5 +63,40 @@ export const Product = styled("div",{
     transform: "translateY(0%)",
     opacity: 1,
     },
+  }
+})
+
+export const BaseButton = styled("button", {
+  marginTop: "auto",
+  border: 0,
+  cursor: "pointer",
+  minHeight: "100%",
+  width: 136,
+  position: "absolute",
+  zIndex: 3,
+
+
+
+  "&:disabled" : {
+    display: "none"
+  },
+
+})
+
+export const ButtonLeftSlide = styled(BaseButton, {
+  background: "linear-gradient(0.25turn, #121214 0%, transparent)",
+
+
+  "&:not(:disabled):hover": {
+    background: "linear-gradient(0.25turn, #121214 20%, transparent)",
+  }
+})
+
+export const ButtonRightSlide = styled(BaseButton, {
+  background: "linear-gradient(0.25turn, transparent, #121214 100%)", 
+  right: -1,
+
+  "&:not(:disabled):hover": {
+    background: "linear-gradient(0.25turn, transparent, #121214 80%)", 
   }
 })
