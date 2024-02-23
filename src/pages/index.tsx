@@ -1,7 +1,7 @@
 import { useKeenSlider } from 'keen-slider/react'
 import Image from "next/image"
 import Head from "next/head"
-import { ButtonLeftSlide, ButtonRightSlide, HomeContainer, Product } from "../styles/pages/home"
+import { ButtonLeftSlide, ButtonRightSlide, HomeContainer, Product, ProductDetails } from "../styles/pages/home"
 import leftArrow from '../assets/leftArrow.svg'
 import rightArrow from '../assets/rightArrow.svg'
 
@@ -12,20 +12,18 @@ import Link from 'next/link'
 import Stripe from "stripe"
 import { stripe } from "../lib/stripe"
 import { useState } from 'react'
+import { IconButtonBag } from '../components/iconButtonBag'
+import { ProductType, ShoppingCartActionKind, useShoppingCartDispatch } from '../context/shoppingCartContext'
 
 interface HomeProps {
-  products: {
-    id: string,
-    name: string,
-    imageUrl: string,
-    price: string,
-  }[]
+  products: ProductType[]
 }
 
 export default function Home({ products }: HomeProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const shoppingCartActions = useShoppingCartDispatch()
   const [isLoaded, setIsLoaded] = useState(false)
-  const [sliderRef, instanceRef] = useKeenSlider(
+  const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>(
     {
       slideChanged(slider) {
         setCurrentSlide(slider.track.details.rel)
@@ -36,6 +34,14 @@ export default function Home({ products }: HomeProps) {
       },
       created() {
         setIsLoaded(true)
+      },
+      breakpoints: {
+        "(max-width: 500px)": {
+          slides: {
+            perView: 1,
+            spacing: 48
+          }
+        }
       }
     }
   )
@@ -55,19 +61,27 @@ export default function Home({ products }: HomeProps) {
       <HomeContainer ref={sliderRef} className="keen-slider">
         {products.map(product => {
           return (
-            <Link key={product.id} href={`product/${product.id}`} prefetch={false}>
-              <Product className="keen-slider__slide">
+            <Product key={product.id} className="keen-slider__slide">
+              <Link href={`product/${product.id}`} prefetch={false}>
                 <Image
                   src={product.imageUrl}
                   width={520}
                   height={480}
                   alt="" />
-                <footer>
+              </Link>
+              <footer>
+                <ProductDetails>
                   <strong>{product.name}</strong>
                   <span>{product.price}</span>
-                </footer>
-              </Product>
-            </Link>
+                </ProductDetails>
+                <IconButtonBag color='green' onClick={(e) => {
+                  shoppingCartActions({
+                    type: ShoppingCartActionKind.ADD_ITEM,
+                    item: product
+                  })
+                }} />
+              </footer>
+            </Product>
           )
         })}
         {isLoaded &&
@@ -83,7 +97,7 @@ export default function Home({ products }: HomeProps) {
               onClick={(e: any) =>
                 handleRightButton(e)
               }
-              disabled={currentSlide === instanceRef.current.track.details.slides.length - 1}>
+              disabled={currentSlide === instanceRef.current.slides.length - instanceRef.current.options.slides.perView}>
               <Image src={rightArrow} width={48} height={48} alt="" />
             </ButtonRightSlide>
           </>
@@ -114,6 +128,7 @@ export const getStaticProps: GetStaticProps = async () => {
         style: 'currency',
         currency: "BRL"
       }).format(price.unit_amount / 100),
+      defaultPriceId: price.id
     }
   })
 

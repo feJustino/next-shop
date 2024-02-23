@@ -2,41 +2,41 @@ import { createContext, Dispatch, PropsWithChildren, useContext, useEffect, useR
 
 export enum ShoppingCartActionKind {
   ADD_ITEM = 'add_item',
-  REMOVE_ITEM = 'remove_item'
+  REMOVE_ITEM = 'remove_item',
+  OPEN_CART = 'open_cart',
+  CLOSE_CART = 'close_cart'
 }
 
-interface Product {
+export interface ProductType {
   id: string,
   name: string,
   imageUrl: string,
   price: string,
-  description: string
+  description?: string
   defaultPriceId: string
+}
+
+interface ShoppingCart {
+  isModalOpen: boolean,
+  itens: ProductType[],
+  amount: string
 }
 
 interface ActionReducerType {
   type: ShoppingCartActionKind,
-  item: Product,
+  item?: ProductType
 }
 
 type Reducer<S, A> = (prevState: S, action: A) => S;
 
-const ShoppingCartContext = createContext<Product[]>(null)
+const ShoppingCartContext = createContext<ShoppingCart>(null)
 const ShoppingCartDispatchContext = createContext<Dispatch<ActionReducerType>>(null)
 
-const initialArgShoppingCartReducer: Product[] = [
-  {
-    defaultPriceId: '',
-    description: '',
-    id: '',
-    imageUrl: '',
-    name: '',
-    price: ''
-  }]
+const initialArgShoppingCartReducer: ShoppingCart = { isModalOpen: false, itens: [], amount: "R$ 0,00" }
 
 
 export function ShoppingProvider({ children }: PropsWithChildren) {
-  const [shoppingCartData, dispatch] = useReducer<Reducer<Product[], ActionReducerType>>(shoppingCartReducer, initialArgShoppingCartReducer)
+  const [shoppingCartData, dispatch] = useReducer<Reducer<ShoppingCart, ActionReducerType>>(shoppingCartReducer, initialArgShoppingCartReducer)
 
   return (
     <ShoppingCartContext.Provider value={shoppingCartData}>
@@ -55,14 +55,40 @@ export function useShoppingCartDispatch() {
   return useContext(ShoppingCartDispatchContext)
 }
 
-function shoppingCartReducer(shoppingCart: Product[], action: ActionReducerType): Product[] {
+function shoppingCartReducer(shoppingCart: ShoppingCart, action: ActionReducerType): ShoppingCart {
+
+  function sumItensPrice(itens: ProductType[]) {
+    return itens.flatMap(product =>
+    (parseFloat(product.price
+      .replace(/(R\$\s+)/, "")
+      .replace(",", ".")))
+    ).reduce((accumulator, value) => (accumulator + value))
+  }
 
   switch (action.type) {
     case ShoppingCartActionKind.ADD_ITEM: {
-      return [...shoppingCart, action.item]
+      let newCart = Object.assign({}, shoppingCart, {
+        itens: [...shoppingCart.itens, action.item]
+      })
+      newCart.amount =  new Intl.NumberFormat("pt-BR", {
+        style: 'currency',
+        currency: "BRL"
+      }).format(sumItensPrice(newCart.itens)) 
+
+      return newCart
     }
     case ShoppingCartActionKind.REMOVE_ITEM: {
-      return shoppingCart
+
+    }
+    case ShoppingCartActionKind.OPEN_CART: {
+      return Object.assign({}, shoppingCart, {
+        isModalOpen: true
+      })
+    }
+    case ShoppingCartActionKind.CLOSE_CART: {
+      return Object.assign({}, shoppingCart, {
+        isModalOpen: false
+      })
     }
     default: {
       throw Error('Unknown action: ' + action.type);

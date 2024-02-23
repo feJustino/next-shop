@@ -3,10 +3,9 @@ import { styled } from "..";
 export const HomeContainer = styled("main",{
   position: "relative",
   display:"flex",
-    maxWidth: "calc(100vw - ((100vw - 1180px) / 2))",
+  maxWidth: "calc(100vw - ((100vw - 1180px) / 2))",
   width: "100%",
   marginLeft: "auto",
-  minHeight: 656,
 })
 
 export const Product = styled("div",{
@@ -27,22 +26,22 @@ export const Product = styled("div",{
   },
 
   footer: {
-    position: "absolute",
-    bottom: "0.25rem",
-    left: "0.25rem",
-    right: "0.25rem",
-    padding: "2rem",
-
-    borderRadius: 6,
-    
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
 
+    position: "absolute",
+    bottom: "0.25rem",
+    left: "0.25rem",
+    right: "0.25rem",
+    padding: "1.25rem",
+
+    borderRadius: 6,
+
     backgroundColor: "rgb(0, 0, 0, 0.6)",
 
     transform: "translateY(110%)",
-    opacity: 0,
+    opacity: 1,
     transition: "all 0.2s ease-in-out",
 
     strong:{
@@ -66,12 +65,23 @@ export const Product = styled("div",{
   }
 })
 
+export const ProductDetails = styled("div",{
+  display: 'flex',
+  flexDirection: "column",
+  gap: "0.5rem"
+}
+)
+
 export const BaseButton = styled("button", {
   marginTop: "auto",
   border: 0,
   cursor: "pointer",
-  minHeight: "100%",
-  width: 136,
+
+  height: "100%",
+
+  width: "10vw",
+  minWidth: 80,
+  
   position: "absolute",
   zIndex: 3,
 
@@ -84,19 +94,19 @@ export const BaseButton = styled("button", {
 })
 
 export const ButtonLeftSlide = styled(BaseButton, {
-  background: "linear-gradient(0.25turn, #121214 0%, transparent)",
+  background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0.6) 0%, rgb(0, 0, 0, 0))",
 
 
   "&:not(:disabled):hover": {
-    background: "linear-gradient(0.25turn, #121214 20%, transparent)",
+    background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0.6) 20%, rgb(0, 0, 0, 0))",
   }
 })
 
 export const ButtonRightSlide = styled(BaseButton, {
-  background: "linear-gradient(0.25turn, transparent, #121214 100%)", 
-  right: -1,
+  background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0), rgb(0, 0, 0, 0.6) 100%)", 
+  right: 0,
 
   "&:not(:disabled):hover": {
-    background: "linear-gradient(0.25turn, transparent, #121214 80%)", 
+    background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0), rgb(0, 0, 0, 0.6) 80%)", 
   }
 })

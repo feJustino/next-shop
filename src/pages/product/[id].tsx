@@ -4,7 +4,9 @@ import { stripe } from "../../lib/stripe"
 import Stripe from "stripe"
 import Image from "next/image"
 import axios from "axios"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import Head from "next/head"
+import { ShoppingCartActionKind, useShoppingCart, useShoppingCartDispatch } from "../../context/shoppingCartContext"
 
 interface ProductProps {
   product: {
@@ -18,41 +20,38 @@ interface ProductProps {
 }
 
 export default function Product({ product }: ProductProps) {
-
+  const shoppingCartData = useShoppingCart()
+  const shoppingCartActions = useShoppingCartDispatch()
   const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false)
 
-  async function handleBuyProduct() {
+  function handleAddInShoppingCart(e: React.FormEvent) {
 
-    try {
-      setIsCreatingCheckoutSession(true)
-      const response = await axios.post('/api/checkout', {
-        priceId: product.defaultPriceId,
-      })
-
-      const { checkoutUrl } = response.data
-
-      window.location.href = checkoutUrl
-    } catch (err) {
-      setIsCreatingCheckoutSession(false)
-      alert(`Falha ao redirecionar ao checkout ${err}`)
-    }
-
+    shoppingCartActions({
+      type: ShoppingCartActionKind.ADD_ITEM,
+      item: product
+    })
+    e.preventDefault()
   }
 
   return (
-    <ProductContainer>
-      <ImageContainer>
-        <Image src={product.imageUrl} alt="" width={520} height={480} />
-      </ImageContainer>
-      <ProductDetails>
-        <h1>{product.name}</h1>
-        <span>{product.price}</span>
-        <p>{product.description}</p>
-        <button disabled={isCreatingCheckoutSession} onClick={handleBuyProduct}>
-          Comprar agora
-        </button>
-      </ProductDetails>
-    </ProductContainer>
+    <>
+      <Head>
+        <title>{`Home | ${product.name}`}</title>
+      </Head>
+      <ProductContainer>
+        <ImageContainer>
+          <Image src={product.imageUrl} alt="" width={520} height={480} />
+        </ImageContainer>
+        <ProductDetails>
+          <h1>{product.name}</h1>
+          <span>{product.price}</span>
+          <p>{product.description}</p>
+          <button disabled={isCreatingCheckoutSession} onClick={(e) => handleAddInShoppingCart(e)}>
+            Colocar na sacola
+          </button>
+        </ProductDetails>
+      </ProductContainer>
+    </>
   )
 }
 
