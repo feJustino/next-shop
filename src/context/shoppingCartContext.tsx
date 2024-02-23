@@ -4,7 +4,8 @@ export enum ShoppingCartActionKind {
   ADD_ITEM = 'add_item',
   REMOVE_ITEM = 'remove_item',
   OPEN_CART = 'open_cart',
-  CLOSE_CART = 'close_cart'
+  CLOSE_CART = 'close_cart',
+  REFRESH_AMOUNT = 'refresh_amount'
 }
 
 export interface ProductType {
@@ -24,7 +25,8 @@ interface ShoppingCart {
 
 interface ActionReducerType {
   type: ShoppingCartActionKind,
-  item?: ProductType
+  item?: ProductType,
+  itemIndex?: number
 }
 
 type Reducer<S, A> = (prevState: S, action: A) => S;
@@ -37,7 +39,9 @@ const initialArgShoppingCartReducer: ShoppingCart = { isModalOpen: false, itens:
 
 export function ShoppingProvider({ children }: PropsWithChildren) {
   const [shoppingCartData, dispatch] = useReducer<Reducer<ShoppingCart, ActionReducerType>>(shoppingCartReducer, initialArgShoppingCartReducer)
-
+  useEffect(() => {
+    dispatch({type:ShoppingCartActionKind.REFRESH_AMOUNT})
+  }, [shoppingCartData.itens])
   return (
     <ShoppingCartContext.Provider value={shoppingCartData}>
       <ShoppingCartDispatchContext.Provider value={dispatch}>
@@ -58,6 +62,7 @@ export function useShoppingCartDispatch() {
 function shoppingCartReducer(shoppingCart: ShoppingCart, action: ActionReducerType): ShoppingCart {
 
   function sumItensPrice(itens: ProductType[]) {
+    if(itens.length <= 0) return 0
     return itens.flatMap(product =>
     (parseFloat(product.price
       .replace(/(R\$\s+)/, "")
@@ -70,15 +75,12 @@ function shoppingCartReducer(shoppingCart: ShoppingCart, action: ActionReducerTy
       let newCart = Object.assign({}, shoppingCart, {
         itens: [...shoppingCart.itens, action.item]
       })
-      newCart.amount =  new Intl.NumberFormat("pt-BR", {
-        style: 'currency',
-        currency: "BRL"
-      }).format(sumItensPrice(newCart.itens)) 
-
       return newCart
     }
     case ShoppingCartActionKind.REMOVE_ITEM: {
-
+      return Object.assign({}, shoppingCart, {
+        itens: shoppingCart.itens.filter((item, idx) => idx !== action.itemIndex)
+      })
     }
     case ShoppingCartActionKind.OPEN_CART: {
       return Object.assign({}, shoppingCart, {
@@ -89,6 +91,15 @@ function shoppingCartReducer(shoppingCart: ShoppingCart, action: ActionReducerTy
       return Object.assign({}, shoppingCart, {
         isModalOpen: false
       })
+    }
+    case ShoppingCartActionKind.REFRESH_AMOUNT: {
+      return {
+        ...shoppingCart,
+        amount: new Intl.NumberFormat("pt-BR", {
+          style: 'currency',
+          currency: "BRL"
+        }).format(sumItensPrice(shoppingCart.itens))
+      }
     }
     default: {
       throw Error('Unknown action: ' + action.type);

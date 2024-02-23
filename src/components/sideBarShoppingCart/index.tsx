@@ -11,7 +11,7 @@ export function SideBarShoppingCart() {
   const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false)
   const dispatch = useShoppingCartDispatch()
 
-  async function handleAddInShoppingCart(e: React.FormEvent) {
+  async function handleSubmitPurchase(e: React.FormEvent) {
     try {
       const response = await axios.post('/api/checkout', {   
       arrayItens: itens.map((item) => item.defaultPriceId),
@@ -22,6 +22,10 @@ export function SideBarShoppingCart() {
     } catch (err) {
       alert(`Falha ao redirecionar ao checkout ${err}`)
     }
+  }
+
+  function handleRemoveItem(index: number) {
+    dispatch({type: ShoppingCartActionKind.REMOVE_ITEM, itemIndex: index})
   }
 
   return (
@@ -42,7 +46,7 @@ export function SideBarShoppingCart() {
                 <ItemDetailsWrapper>
                   <h4>{e.name}</h4>
                   <p>{e.price}</p>
-                  <button onClick={() => console.log("clicou no Close")}>Remover</button>
+                  <button onClick={() => handleRemoveItem(i)}>Remover</button>
                 </ItemDetailsWrapper>
               </ItemWrapper>
             )
@@ -57,7 +61,7 @@ export function SideBarShoppingCart() {
             <strong>Valor</strong>
             <strong>{amount}</strong>
           </PurchasesSummary>
-          <button onClick={handleAddInShoppingCart}>Finalizar Compra</button>
+          <button onClick={handleSubmitPurchase}>Finalizar Compra</button>
         </footer>
       </SideBarContainer>
     </>
