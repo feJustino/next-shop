@@ -77,7 +77,9 @@ export const BaseButton = styled("button", {
   border: 0,
   cursor: "pointer",
 
-  height: "100%",
+  height: "25%",
+  top: "38%",
+  borderRadius: 16,
 
   width: "10vw",
   minWidth: 80,
@@ -94,19 +96,19 @@ export const BaseButton = styled("button", {
 })
 
 export const ButtonLeftSlide = styled(BaseButton, {
-  background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0.6) 0%, rgb(0, 0, 0, 0))",
+  background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0.6) 0%, rgb(0, 0, 0, 0.3))",
 
 
   "&:not(:disabled):hover": {
-    background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0.6) 20%, rgb(0, 0, 0, 0))",
+    background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0.6) 20%, rgb(0, 0, 0, 0.6))",
   }
 })
 
 export const ButtonRightSlide = styled(BaseButton, {
-  background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0), rgb(0, 0, 0, 0.6) 100%)", 
+  background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0.3), rgb(0, 0, 0, 0.6) 100%)", 
   right: 0,
 
   "&:not(:disabled):hover": {
-    background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0), rgb(0, 0, 0, 0.6) 80%)", 
+    background: "linear-gradient(0.25turn, rgb(0, 0, 0, 0.6), rgb(0, 0, 0, 0.6) 80%)", 
   }
 })

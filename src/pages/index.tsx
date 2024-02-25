@@ -1,4 +1,4 @@
-import { useKeenSlider } from 'keen-slider/react'
+import { KeenSliderHooks, KeenSliderInstance, useKeenSlider } from 'keen-slider/react'
 import Image from "next/image"
 import Head from "next/head"
 import { ButtonLeftSlide, ButtonRightSlide, HomeContainer, Product, ProductDetails } from "../styles/pages/home"
@@ -11,9 +11,10 @@ import { GetStaticProps } from "next"
 import Link from 'next/link'
 import Stripe from "stripe"
 import { stripe } from "../lib/stripe"
-import { useState } from 'react'
+import { MutableRefObject, useState } from 'react'
 import { IconButtonBag } from '../components/iconButtonBag'
 import { ProductType, ShoppingCartActionKind, useShoppingCartDispatch } from '../context/shoppingCartContext'
+import { SliderInstance } from 'keen-slider'
 
 interface HomeProps {
   products: ProductType[]
@@ -36,11 +37,11 @@ export default function Home({ products }: HomeProps) {
         setIsLoaded(true)
       },
       breakpoints: {
-        "(max-width: 500px)": {
+        '(max-width: 500px)': {
           slides: {
             perView: 1,
-            spacing: 48
-          }
+            spacing: 48,
+          },
         }
       }
     }
@@ -97,7 +98,7 @@ export default function Home({ products }: HomeProps) {
               onClick={(e: any) =>
                 handleRightButton(e)
               }
-              disabled={currentSlide === instanceRef.current.slides.length - instanceRef.current.options.slides.perView}>
+              disabled={currentSlide === instanceRef.current.track.details.maxIdx}>
               <Image src={rightArrow} width={48} height={48} alt="" />
             </ButtonRightSlide>
           </>
