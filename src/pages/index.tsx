@@ -7,14 +7,16 @@ import rightArrow from '../assets/rightArrow.svg'
 
 
 import 'keen-slider/keen-slider.min.css'
-import { GetStaticProps } from "next"
+import { GetServerSideProps, GetStaticProps } from "next"
 import Link from 'next/link'
 import Stripe from "stripe"
 import { stripe } from "../lib/stripe"
-import { MutableRefObject, useState } from 'react'
+import { MutableRefObject, useEffect, useState } from 'react'
 import { IconButtonBag } from '../components/iconButtonBag'
 import { ProductType, ShoppingCartActionKind, useShoppingCartDispatch } from '../context/shoppingCartContext'
 import { SliderInstance } from 'keen-slider'
+import axios from 'axios'
+import { extractQueryParams } from '../utils/extract-query-params'
 
 interface HomeProps {
   products: ProductType[]
@@ -54,6 +56,7 @@ export default function Home({ products }: HomeProps) {
   function handleRightButton(e) {
     e.stopPropagation() || instanceRef.current?.next();
   }
+  
   return (
     <>
       <Head>
@@ -78,7 +81,7 @@ export default function Home({ products }: HomeProps) {
                 <IconButtonBag color='green' onClick={(e) => {
                   shoppingCartActions({
                     type: ShoppingCartActionKind.ADD_ITEM,
-                    item: product
+                    itens: [product]
                   })
                 }} />
               </footer>
@@ -113,12 +116,17 @@ export default function Home({ products }: HomeProps) {
   - Sempre bom salvar valores monetarios em centavos
 */
 
+// export const getServerSideProps: GetServerSideProps = async ({ query }) => {
+
+//   }
+// }
+
 export const getStaticProps: GetStaticProps = async () => {
-  const response = await stripe.products.list({
+  const rawProductList = await stripe.products.list({
     expand: ['data.default_price']
   })
 
-  const products = response.data.map(product => {
+  const listOfProductsProcessed = rawProductList.data.map(product => {
     const price = product.default_price as Stripe.Price
 
     return {
@@ -135,7 +143,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: {
-      products
+      products: listOfProductsProcessed
     },
     revalidate: 60 * 60 * 2,
   }

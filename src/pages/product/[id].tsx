@@ -28,7 +28,7 @@ export default function Product({ product }: ProductProps) {
 
     shoppingCartActions({
       type: ShoppingCartActionKind.ADD_ITEM,
-      item: product
+      itens: [product]
     })
     e.preventDefault()
   }

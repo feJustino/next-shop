@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { CloseButton, ImageContainer, ItemDetailsWrapper, ItemWrapper, ItensWrapper, PurchasesSummary, SideBarContainer, SideBarCover } from "./style";
 
-import closeIcon from "../../assets/close.svg"
+import closeIcon from "../../assets/close.svg";
 import { ShoppingCartActionKind, useShoppingCart, useShoppingCartDispatch } from "../../context/shoppingCartContext";
 import axios from "axios";
 import { useState } from "react";
@@ -12,6 +12,7 @@ export function SideBarShoppingCart() {
   const dispatch = useShoppingCartDispatch()
 
   async function handleSubmitPurchase(e: React.FormEvent) {
+    setIsCreatingCheckoutSession(true)
     try {
       const response = await axios.post('/api/checkout', {   
       arrayItens: itens.map((item) => item.defaultPriceId),
@@ -20,6 +21,7 @@ export function SideBarShoppingCart() {
       e.preventDefault()
       window.location.href = checkoutUrl
     } catch (err) {
+      setIsCreatingCheckoutSession(false)
       alert(`Falha ao redirecionar ao checkout ${err}`)
     }
   }

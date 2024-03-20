@@ -1,4 +1,6 @@
+import axios from "axios";
 import { createContext, Dispatch, PropsWithChildren, useContext, useEffect, useReducer } from "react";
+import { extractQueryParams } from "../utils/extract-query-params";
 
 export enum ShoppingCartActionKind {
   ADD_ITEM = 'add_item',
@@ -23,9 +25,12 @@ interface ShoppingCart {
   amount: string
 }
 
+interface ShoppingProviderProps extends PropsWithChildren{
+  localStorageData: ShoppingCart
+}
 interface ActionReducerType {
   type: ShoppingCartActionKind,
-  item?: ProductType,
+  itens?: ProductType[],
   itemIndex?: number
 }
 
@@ -34,14 +39,14 @@ type Reducer<S, A> = (prevState: S, action: A) => S;
 const ShoppingCartContext = createContext<ShoppingCart>(null)
 const ShoppingCartDispatchContext = createContext<Dispatch<ActionReducerType>>(null)
 
-const initialArgShoppingCartReducer: ShoppingCart = { isModalOpen: false, itens: [], amount: "R$ 0,00" }
+export function ShoppingProvider({ children, localStorageData }: ShoppingProviderProps ) {
+  console.log(localStorageData)
+  const [shoppingCartData, dispatch] = useReducer<Reducer<ShoppingCart, ActionReducerType>>(shoppingCartReducer, localStorageData)
 
-
-export function ShoppingProvider({ children }: PropsWithChildren) {
-  const [shoppingCartData, dispatch] = useReducer<Reducer<ShoppingCart, ActionReducerType>>(shoppingCartReducer, initialArgShoppingCartReducer)
   useEffect(() => {
     dispatch({type:ShoppingCartActionKind.REFRESH_AMOUNT})
   }, [shoppingCartData.itens])
+
   return (
     <ShoppingCartContext.Provider value={shoppingCartData}>
       <ShoppingCartDispatchContext.Provider value={dispatch}>
@@ -73,8 +78,9 @@ function shoppingCartReducer(shoppingCart: ShoppingCart, action: ActionReducerTy
   switch (action.type) {
     case ShoppingCartActionKind.ADD_ITEM: {
       let newCart = Object.assign({}, shoppingCart, {
-        itens: [...shoppingCart.itens, action.item]
+        itens: [...shoppingCart.itens, ...action.itens]
       })
+      localStorage.setItem('cart', JSON.stringify(newCart))
       return newCart
     }
     case ShoppingCartActionKind.REMOVE_ITEM: {
